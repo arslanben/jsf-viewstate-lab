@@ -1,0 +1,18 @@
+services:
+  portal:
+    build: .
+    image: aurora-topup-portal
+    ports:
+      - "8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+    environment:
+      JAVA_OPTS: "-Xms64m -Xmx512m"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:8080/pages/login.xhtml"]
+      interval: 5s
+      timeout: 3s
+      retries: 20

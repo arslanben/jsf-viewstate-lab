@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+<h:head>
+  <title>Aurora Prepaid Top-Up Portal</title>
+  <style>
+    body { margin:0; font-family:"Segoe UI",Arial,sans-serif; background:#eef1f5; color:#26313d; }
+    .wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; }
+    .card { width:340px; background:#fff; border:1px solid #d7dde5; border-radius:6px; padding:28px 32px 20px; box-shadow:0 2px 8px rgba(20,40,70,.08); }
+    h1 { font-size:18px; margin:0 0 4px; }
+    .sub { font-size:12px; color:#6a7686; margin:0 0 20px; }
+    label { display:block; font-size:12px; font-weight:600; margin:12px 0 4px; }
+    input[type=text], input[type=password] { width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #c3ccd8; border-radius:4px; font-size:13px; }
+    .captcha { display:inline-block; letter-spacing:4px; font-weight:700; font-size:16px; color:#1f4e79; padding:6px 10px; border:1px dashed #9fb2c8; border-radius:4px; background:#f4f7fb; margin:8px 0; }
+    .btn { width:100%; margin-top:16px; padding:9px 0; background:#1f4e79; color:#fff; border:0; border-radius:4px; font-size:13px; cursor:pointer; }
+    .err { color:#b3261e; font-size:12px; margin:6px 0; }
+    .foot { margin-top:18px; font-size:11px; color:#8a94a3; text-align:center; }
+  </style>
+</h:head>
+<h:body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Aurora Prepaid Top-Up Portal</h1>
+      <p class="sub">Sign in to continue</p>
+      <h:form id="loginForm">
+        <h:messages globalOnly="true" styleClass="err"/>
+        <label for="loginForm:userName">Username</label>
+        <h:inputText id="userName" value="#{loginBean.username}" autocomplete="off"/>
+        <label for="loginForm:userPassword">Password</label>
+        <h:inputSecret id="userPassword" value="#{loginBean.password}"/>
+        <label for="loginForm:captchaText">Security code</label>
+        <div><h:outputText value="#{loginBean.captcha}" styleClass="captcha"/></div>
+        <h:inputText id="captchaText" value="#{loginBean.captchaInput}" maxlength="4" autocomplete="off"/>
+        <h:commandButton value="Sign in" action="#{loginBean.login}" styleClass="btn"/>
+      </h:form>
+      <p class="foot">Internal use only. Unauthorized access is prohibited.</p>
+    </div>
+  </div>
+</h:body>
+</html>

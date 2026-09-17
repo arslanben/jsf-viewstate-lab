@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html">
+<h:head>
+  <title>Dashboard - Aurora Prepaid Top-Up Portal</title>
+  <style>
+    body { margin:0; font-family:"Segoe UI",Arial,sans-serif; background:#eef1f5; color:#26313d; }
+    .top { background:#1f4e79; color:#fff; padding:12px 28px; font-size:14px; display:flex; justify-content:space-between; }
+    .top a { color:#cfe0f0; text-decoration:none; font-size:12px; }
+    .wrap { max-width:720px; margin:32px auto; background:#fff; border:1px solid #d7dde5; border-radius:6px; padding:24px 32px; }
+    h1 { font-size:18px; margin:0 0 6px; }
+    p { font-size:13px; color:#6a7686; }
+    ul { font-size:13px; line-height:1.9; }
+  </style>
+</h:head>
+<h:body>
+  <div class="top">
+    <span>Aurora Prepaid Top-Up Portal</span>
+    <span><a href="login.xhtml">Sign out</a></span>
+  </div>
+  <div class="wrap">
+    <h1>Dashboard</h1>
+    <p>Signed in as <strong><h:outputText value="#{loginBean.username}"/></strong></p>
+    <ul>
+      <li>Dealer Management</li>
+      <li>Transaction Query</li>
+      <li>Whitelist Management</li>
+      <li>Reports</li>
+      <li>System Settings</li>
+    </ul>
+  </div>
+</h:body>
+</html>
