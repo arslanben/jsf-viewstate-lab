@@ -158,4 +158,4 @@ pre-authentication remote code execution.
 
 ## License
 
-MIT, see `LICENSE`.
+MIT
