@@ -2,7 +2,7 @@ FROM tomcat:9-jdk8-temurin
 
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends curl; \
+    apt-get install -y --no-install-recommends curl iptables; \
     rm -rf /var/lib/apt/lists/*
 
 ENV CATALINA_HOME=/usr/local/tomcat \
@@ -30,6 +30,12 @@ RUN set -eux; \
         $(find /build/java -name '*.java'); \
     cp -r /build/webapp/. "$APP_HOME"/; \
     rm -rf /build
+
+# the application runs as a non-root service account (uid 1001), mirroring the
+# constrained service user of a real deployment; the entrypoint starts as root
+# only to (re)generate /flag.txt and then drops privileges
+RUN useradd --uid 1001 --no-create-home --shell /bin/bash portal && \
+    chown -R portal:portal "$CATALINA_HOME"
 
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh

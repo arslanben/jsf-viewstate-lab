@@ -1,3 +1,4 @@
 __pycache__/
 *.pyc
 last_output.bin
+solution/tools/*.class

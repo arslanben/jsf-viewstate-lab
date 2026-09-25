@@ -2,8 +2,6 @@ services:
   portal:
     build: .
     image: aurora-topup-portal
-    ports:
-      - "8080:8080"
     deploy:
       resources:
         limits:
@@ -11,8 +9,28 @@ services:
           memory: 2G
     environment:
       JAVA_OPTS: "-Xms64m -Xmx512m"
+      # TIMING_MODE=1 makes the webroot read-only (report-faithful mode, see
+      # solution/README.md); start with:  TIMING_MODE=1 docker compose up -d
+      TIMING_MODE: "${TIMING_MODE:-0}"
+    # no outbound connectivity: reverse shells and OOB callbacks are dead,
+    # like on the real target where egress was filtered
+    dns:
+      - "127.0.0.1"          # nothing listens: name resolution fails inside
+    cap_add:
+      - NET_ADMIN             # entrypoint installs the egress-blocking rules
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-o", "/dev/null", "http://localhost:8080/pages/login.xhtml"]
       interval: 5s
-      timeout: 3s
+      timeout: 5s
       retries: 20
+
+  # all player traffic goes through this proxy, like the F5 in front of the
+  # real target; it enforces the TemplatesImpl serialVersionUID rule
+  waf:
+    build: ./waf
+    image: jsf-lab-waf
+    ports:
+      - "8080:8080"
+    depends_on:
+      portal:
+        condition: service_healthy

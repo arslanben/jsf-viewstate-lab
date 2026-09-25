@@ -18,7 +18,9 @@ client.
 ## Requirements
 
 - Docker Desktop (Windows, macOS) or Docker Engine with the Compose plugin (Linux)
-- Roughly 1.5 GB of disk for the image; the first build downloads Tomcat, JDK 8 and a few JARs
+- Python 3 (only for the solution scripts; the lab itself runs entirely in Docker)
+- Roughly 1.5 GB of disk for the images; the first build downloads Tomcat, JDK 8, the
+  small WAF image and a few JARs
 - Internet access for the first build
 
 ## Running the lab
@@ -47,6 +49,7 @@ Other commands:
 ```
 docker compose ps                    show the container state
 docker compose logs -f portal        follow the Tomcat log
+docker compose logs -f waf           follow the WAF log (shows blocked payloads)
 docker compose restart portal        restart and generate a new flag
 docker compose down --rmi local -v   remove container, image and volumes
 ```
@@ -54,8 +57,25 @@ docker compose down --rmi local -v   remove container, image and volumes
 The demo account `dealer01` / `dealer01` lets you see the authenticated dashboard. The
 vulnerability does not require it.
 
-If port 8080 is already taken, change the left side of the port mapping in
-`docker-compose.yml`.
+If port 8080 is already taken, change the left side of the port mapping of the `waf`
+service in `docker-compose.yml` (the WAF owns the published port; Tomcat stays internal).
+
+### Optional: report-faithful mode (timing exfiltration)
+
+The default solution drops a file under the web root and reads it back over HTTP. The
+original engagement worked with filtered egress (DNS sinkholed, outbound TCP intercepted)
+and exfiltrated command output through the **HTTP response time** instead. To replay that
+path, restart the lab with the webroot locked down so the file-drop route is gone:
+
+```
+TIMING_MODE=1 docker compose up -d --force-recreate
+python3 solution/timing_solver.py 'id'
+```
+
+`timing_solver.py` calibrates a baseline, verifies the response blocks on the command,
+then recovers the output hex digit by digit from the response times. Details and control
+measurements: `solution/README.md`, "Report-faithful timing mode".
+Back to normal mode: `docker compose up -d --force-recreate` (TIMING_MODE defaults to 0).
 
 ## Objective
 
@@ -71,8 +91,14 @@ that process can be made to run a shell.
 
 - Tomcat 9 (`tomcat:9-jdk8-temurin`)
 - Mojarra 2.2.20 (`javax.faces-2.2.20.jar`)
-- commons-beanutils 1.9.2, commons-collections 3.1, commons-logging 1.2
+- A `WEB-INF/lib` directory worth enumerating (the gadget dependency is **not**
+  listed here on purpose — finding it is part of the exercise)
 - Client-side state saving with encryption disabled (see `app/src/main/webapp/WEB-INF/web.xml`)
+- The application process runs as a **non-root service account** (uid 1001), like a
+  constrained account on a real deployment — check it once you have command execution
+- A reverse proxy / **WAF in front of Tomcat**: everything on port 8080 goes through it,
+  and it enforces a serialization signature rule (part of the exercise — see
+  `solution/README.md`)
 - Container capped at 2 vCPU and 2 GB RAM
 - Demo credentials for the UI: `dealer01` / `dealer01`
 
@@ -82,8 +108,10 @@ that process can be made to run a shell.
 
 ## Solution
 
-`solution/README.md` is the full walkthrough and `solution/solve.py` automates the exploit.
-Do not open them until you have tried the lab yourself.
+`solution/README.md` is the full walkthrough; `solution/solve.py` and
+`solution/timing_solver.py` automate the exploit (default and timing mode), and
+`solution/oracle.py` reproduces the discovery probes. Do not open them until you have
+tried the lab yourself.
 
 ## Background
 
